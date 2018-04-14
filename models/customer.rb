@@ -1,6 +1,7 @@
 require_relative("../db/sql_runner")
 require_relative("film.rb")
 require_relative("ticket.rb")
+require_relative("screening.rb")
 
 class Customer
 
@@ -49,13 +50,14 @@ class Customer
 
   # RETURN ALL THE FILMS THAT A CUSTOMER HAS WATCHED
   def films()
-    sql = "SELECT films.* FROM films INNER JOIN tickets ON films.id = tickets.film_id WHERE tickets.customer_id = $1;"
+    sql = "SELECT films.* FROM customers INNER JOIN tickets ON customers.id = tickets.customer_id INNER JOIN screenings ON screenings.id = tickets.screening_id INNER JOIN films ON films.id = screenings.film_id WHERE tickets.customer_id = $1"
     values = [@id]
     films = SqlRunner.run(sql, values)
     return Film.map_films(films)
   end
 
   # BUYING TICKETS SHOULD DECREASE THE FUNDS OF THE CUSTOMER BY THE PRICE
+  
   def price_check(film)
     return @funds >= film.price
   end
@@ -64,9 +66,9 @@ class Customer
     @funds -= purchase
   end
 
-  def buy_ticket(film)
+  def buy_ticket(film, screening)
     if price_check(film) == true
-      new_ticket = Ticket.new({ 'customer_id' => @id, 'film_id' => film.id }).save
+      new_ticket = Ticket.new({ 'customer_id' => @id, 'screening_id' => screening.id }).save
       deduct_funds(film.price)
       update()
     else

@@ -1,5 +1,7 @@
 require_relative("../db/sql_runner")
 require_relative("customer.rb")
+require_relative("ticket.rb")
+require_relative("screening.rb")
 
 class Film
 
@@ -14,15 +16,13 @@ class Film
 
   def self.all()
     sql = "SELECT * FROM films;"
-    values = []
     films = SqlRunner.run(sql, values)
     return Film.map_films(films)
   end
 
   def self.delete_all()
     sql = "DELETE FROM films"
-    values = []
-    SqlRunner.run(sql, values)
+    SqlRunner.run(sql)
   end
 
   def save()
@@ -50,7 +50,7 @@ class Film
 
   # SELECT ALL THE CUSTOMERS THAT HAVE WATCHED A FILM
   def customers()
-    sql = "SELECT customers.* FROM customers INNER JOIN tickets ON customers.id = tickets.film_id WHERE tickets.customer_id = $1;"
+    sql = "SELECT customers.* FROM customers INNER JOIN tickets ON customers.id = tickets.customer_id INNER JOIN screenings ON screenings.id = tickets.screening_id INNER JOIN films ON films.id = screenings.film_id WHERE tickets.customer_id = $1"
     values = [@id]
     customers = SqlRunner.run(sql, values)
     return Customer.map_customers(customers)
@@ -59,7 +59,7 @@ class Film
   # CHECK HOW MANY CUSTOMERS ARE GOING TO WATCH A CERTAIN FILM (see how many tickets have been bought for a film)
 
   def tickets()
-    sql = "SELECT * FROM tickets WHERE film_id = $1;"
+    sql = "SELECT tickets.* FROM films INNER JOIN screenings ON films.id = screenings.film_id INNER JOIN tickets ON screenings.id = tickets.screening_id WHERE film_id = $1;"
     values = [@id]
     films_hash = SqlRunner.run(sql, values)
     return Film.map_films(films_hash).count
