@@ -139,7 +139,7 @@ ticket6 = Ticket.new({
 
 ticket7 = Ticket.new({
  'customer_id' => customer3.id,
- 'screening_id' => screening1.id
+ 'screening_id' => screening2.id
  })
 
 ticket1.save()

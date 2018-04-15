@@ -65,6 +65,12 @@ class Film
     return Film.map_films(films_hash).count
   end
 
+  def show_films_screening_timing()
+    sql = "SELECT screenings.*, films.title FROM films INNER JOIN screenings ON screenings.film_id = films.id WHERE film_id = $1"
+    values = [@id]
+    film_hash = SqlRunner.run(sql, values)
+    return Screening.map_screenings(film_hash)
+  end
 
 
 end
